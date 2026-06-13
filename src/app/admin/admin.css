@@ -1,0 +1,160 @@
+.admin-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.admin-header {
+  margin-bottom: 32px;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.admin-header p {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.form-section {
+  background: var(--surface);
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+}
+
+.form-section h2 {
+  font-size: 1.25rem;
+  color: var(--primary);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--primary-light);
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.input-group input[type="text"],
+.input-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background-color: #f8fafc;
+}
+
+.input-group input[type="text"]:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: #fff;
+}
+
+.input-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.task-input-card {
+  background: #f1f5f9;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  border: 1px dashed #cbd5e1;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.task-header h3 {
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.btn-remove {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.file-group input[type="file"] {
+  background: white;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.btn-add {
+  width: 100%;
+  padding: 16px;
+  background: white;
+  border: 2px dashed var(--primary);
+  color: var(--primary);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-add:hover {
+  background: var(--primary-light);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 18px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.39);
+}
+
+.btn-submit:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
