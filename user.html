@@ -13,13 +13,13 @@
 <body>
 <div class="wrap">
   <div class="card">
-    <h1><img src="icon-192.png" class="logo" alt="">모바일 작업지시서</h1>
-    <div class="top"><button onclick="showAdmin()">관리자 화면</button><a class="btnlink share" href="user.html">사용자 화면 열기</a></div>
+    <h1><img src="icon-192.png" class="logo" alt="">작업지시서 확인</h1>
+    <div class="top" style="grid-template-columns:1fr"><button onclick="showUser()">작업지시서 새로고침</button></div>
     <p id="status" class="muted small">Storage 없이 작동합니다. 사진/동영상은 Google Drive, YouTube 등의 공유링크를 저장합니다.</p>
   </div>
   <div id="admin"></div><div id="user"></div>
 </div>
-<div class="bar"><div class="barin"><button onclick="showAdmin()">관리자</button><a class="btnlink share" href="user.html">사용자 화면</a></div></div>
+<div class="bar"><div class="barin" style="grid-template-columns:1fr"><button onclick="showUser()">작업지시서 새로고침</button></div></div>
 <script src="firebase-config.js"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
@@ -48,9 +48,9 @@ function mediaHtml(i){let h='';if(i.photoUrl){h+=`<a href="${esc(i.photoUrl)}" t
 function viewHtml(o){const share=encodeURIComponent(`작업지시서\n제품명: ${o.product}\n수량: ${o.qty}\n납품일: ${o.delivery}`);return `<div class="card readonly"><h2>${esc(o.product)}</h2><p><span class="pill">${esc(o.date)}</span></p><p><b>수량:</b> ${esc(o.qty)}<br><b>납품일:</b> ${esc(o.delivery)}</p>${(o.items||[]).map(i=>`<div class="item"><h3>작업 항목 ${i.no}. ${esc(i.title)}</h3><p>${esc(i.desc).replaceAll('\n','<br>')}</p><p class="muted">${esc(i.ref).replaceAll('\n','<br>')}</p><div class="media">${mediaHtml(i)}</div></div>`).join('')}<p>${esc(o.note).replaceAll('\n','<br>')}</p><a class="btnlink share" href="sms:?body=${share}">문자로 공유</a><button onclick="copyShare('${share}')">공유 문구 복사</button></div>`}
 window.copyShare=async(t)=>{await navigator.clipboard.writeText(decodeURIComponent(t));alert('복사 완료. 카카오톡에 붙여넣으세요.');}
 window.exportCSV=id=>{let o=orders.find(x=>x.id===id)||{date:date.value,product:product.value,qty:qty.value,delivery:delivery.value,note:note.value,items:[...document.querySelectorAll('.item')].map((el,i)=>({no:i+1,title:el.querySelector('.it-title').value,desc:el.querySelector('.it-desc').value,ref:el.querySelector('.it-ref').value,photoUrl:el.querySelector('.it-photo').value,videoUrl:el.querySelector('.it-video').value}))};let rows=[['작성일',o.date],['제품명',o.product],['수량',o.qty],['납품일',o.delivery],[],['No','작업항목','작업내용','참조','사진링크','영상링크'],...(o.items||[]).map(i=>[i.no,i.title,i.desc,i.ref,i.photoUrl,i.videoUrl]),[],['중요안내',o.note]];let csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v||'').replaceAll('"','""')+'"').join(',')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`작업지시서_${o.date||Date.now()}.csv`;a.click();}
-function renderAll(){showAdmin()} window.renderAll=renderAll; window.showUser=showUser; window.showAdmin=showAdmin;
+function renderAll(){showUser()} window.renderAll=renderAll; window.showUser=showUser; window.showAdmin=showAdmin;
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
-showAdmin();
+showUser();
 </script>
 </body>
 </html>
