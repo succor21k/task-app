@@ -1,133 +1,181 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { db } from '@/firebase';
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
-import './page.css';
+import { useState, useEffect } from "react";
+import "./page.css";
+
+interface TaskItem {
+  id: number;
+  title: string;
+  desc: string;
+  warning?: string;
+  imageUrl?: string;
+}
+
+interface WorkOrder {
+  id: string;
+  productName: string;
+  quantity: string;
+  deliveryDate: string;
+  notice: string;
+  createdAt: string;
+  tasks: TaskItem[];
+}
 
 export default function Home() {
-  const [completedTasks, setCompletedTasks] = useState<number[]>([]);
-  const [workOrder, setWorkOrder] = useState<any>(null);
+  const [order, setOrder] = useState<WorkOrder | null>(null);
   const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState<number[]>([]);
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchLatestOrder = async () => {
-      try {
-        const q = query(collection(db, "work_orders"), orderBy("createdAt", "desc"), limit(1));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          setWorkOrder(querySnapshot.docs[0].data());
-        }
-      } catch (e) {
-        console.error("데이터 불러오기 에러:", e);
-      } finally {
+    fetch("/api/orders")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setOrder(data[0]);
         setLoading(false);
-      }
-    };
-    fetchLatestOrder();
+      })
+      .catch(() => setLoading(false));
   }, []);
 
-  const toggleTask = (id: number) => {
-    setCompletedTasks(prev => 
-      prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
+  const toggle = (id: number) => {
+    setCompleted((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
     );
-    if (typeof window !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(50);
+    if (navigator.vibrate) navigator.vibrate(40);
+  };
+
+  const share = () => {
+    if (navigator.share) {
+      navigator.share({ title: `작업지시서 - ${order?.productName}`, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("링크가 복사되었습니다!");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="app-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <h2>데이터를 불러오는 중입니다...</h2>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="loading-screen">
+      <div className="spinner" />
+      <p>작업지시서 불러오는 중...</p>
+    </div>
+  );
 
-  if (!workOrder) {
-    return (
-      <div className="app-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <h2>등록된 작업지시서가 없습니다.</h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '10px' }}>관리자 페이지(/admin)에서 먼저 지시서를 등록해 주세요.</p>
-        </div>
-      </div>
-    );
-  }
+  if (!order) return (
+    <div className="empty-screen">
+      <div className="empty-icon">📋</div>
+      <h2>등록된 작업지시서가 없습니다</h2>
+      <p>관리자 페이지에서 지시서를 먼저 등록해 주세요.</p>
+      <a href="/admin" className="go-admin-btn">관리자 페이지로 이동</a>
+    </div>
+  );
 
-  const tasks = workOrder.tasks || [];
-  const totalTasks = tasks.length;
+  const total = order.tasks.length;
+  const done = completed.length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="app-container">
-      <header className="header">
-        <div className="header-title">작업지시서 (모바일 뷰어)</div>
-        <button className="share-btn" onClick={() => alert('카카오톡 공유 API가 호출됩니다.')}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 3c-5.523 0-10 3.582-10 8 0 2.865 1.83 5.373 4.545 6.723l-1.156 4.316c-.085.316.27.568.536.402l4.87-3.238c.383.056.776.086 1.176.086 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/>
-          </svg>
-          공유
-        </button>
-      </header>
+    <>
+      {lightbox && (
+        <div className="lightbox" onClick={() => setLightbox(null)}>
+          <img src={lightbox} alt="샘플 이미지" />
+          <button className="lightbox-close">✕</button>
+        </div>
+      )}
 
-      <div className="content">
+      <div className="viewer">
+        {/* Header */}
+        <header className="viewer-header">
+          <div className="viewer-header-left">
+            <span className="badge-date">
+              {new Date(order.createdAt).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })}
+            </span>
+            <h1 className="product-title">{order.productName}</h1>
+          </div>
+          <button className="share-btn" onClick={share}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+            </svg>
+            공유
+          </button>
+        </header>
+
+        {/* Progress Bar */}
+        <div className="progress-section">
+          <div className="progress-info">
+            <span>진행률</span>
+            <span className="progress-count">{done} / {total} 완료 ({pct}%)</span>
+          </div>
+          <div className="progress-bar-bg">
+            <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        {/* Info Card */}
         <div className="info-card">
-          <div className="date-badge">
-            {new Date(workOrder.createdAt).toLocaleDateString('ko-KR')}
-          </div>
-          <div className="product-name">{workOrder.productName}</div>
-          {workOrder.notice && (
-            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>
-              {workOrder.notice}
+          <div className="info-row">
+            <div className="info-cell">
+              <span className="info-label">수량</span>
+              <span className="info-value">{order.quantity}</span>
             </div>
-          )}
-          <div className="info-grid">
-            <div className="info-item">
-              <div className="label">수량</div>
-              <div className="value">{workOrder.quantity}</div>
-            </div>
-            <div className="info-item">
-              <div className="label">납품일</div>
-              <div className="value">{workOrder.deliveryDate}</div>
+            <div className="info-cell">
+              <span className="info-label">납품일</span>
+              <span className="info-value">{order.deliveryDate}</span>
             </div>
           </div>
         </div>
 
-        <div className="section-title">
-          세부 지시사항
-          <span className="progress-text">{completedTasks.length} / {totalTasks} 완료</span>
-        </div>
+        {/* Notice */}
+        {order.notice && (
+          <div className="notice-card">
+            <div className="notice-title">
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              중요 안내사항
+            </div>
+            <p className="notice-text">{order.notice}</p>
+          </div>
+        )}
 
+        {/* Task List */}
+        <div className="task-section-title">세부 작업 지시사항</div>
         <div className="task-list">
-          {tasks.map((task: any) => (
-            <div 
-              key={task.id} 
-              className={`task-item ${completedTasks.includes(task.id) ? 'completed' : ''}`}
-              onClick={() => toggleTask(task.id)}
+          {order.tasks.map((task, i) => (
+            <div
+              key={task.id}
+              className={`task-card ${completed.includes(task.id) ? "done" : ""}`}
+              style={{ animationDelay: `${i * 0.06}s` }}
+              onClick={() => toggle(task.id)}
             >
-              <div className="task-number">{task.id}</div>
-              <div className="task-content">
+              <div className="task-num">{task.id}</div>
+              <div className="task-body">
                 <div className="task-title">{task.title}</div>
-                <div className="task-desc" style={{ whiteSpace: 'pre-wrap' }}>
-                  {task.desc}
-                </div>
-                {task.mediaUrl && (
-                  <button 
-                    className="media-btn" 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      window.open(task.mediaUrl, '_blank'); 
-                    }}
+                {task.desc && <div className="task-desc">{task.desc}</div>}
+                {task.warning && <div className="task-warning">{task.warning}</div>}
+                {task.imageUrl && (
+                  <button
+                    className="img-btn"
+                    onClick={(e) => { e.stopPropagation(); setLightbox(task.imageUrl!); }}
                   >
-                    {task.mediaType === 'video' ? '🎥 영상 보기' : '📷 사진 보기'}
+                    📷 샘플 사진 확대 보기
                   </button>
                 )}
               </div>
-              <div className="check-circle"></div>
+              <div className="task-check">
+                {completed.includes(task.id) && (
+                  <svg width="16" height="16" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
             </div>
           ))}
         </div>
+
+        {done === total && total > 0 && (
+          <div className="complete-banner">🎉 모든 작업이 완료되었습니다!</div>
+        )}
       </div>
-    </div>
+    </>
   );
 }

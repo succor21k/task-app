@@ -1,43 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --primary: #3b82f6;
+  --primary: #2563eb;
   --primary-light: #eff6ff;
+  --primary-dark: #1d4ed8;
   --danger: #ef4444;
   --danger-light: #fef2f2;
+  --success: #22c55e;
   --surface: #ffffff;
-  --background: #f8fafc;
+  --background: #f1f5f9;
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border: #e2e8f0;
-  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-lg: 16px;
   --radius-md: 12px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Pretendard', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background-color: var(--background);
   color: var(--text-main);
-  /* Desktop wrapper simulation styles can go to specific containers */
+  min-height: 100vh;
 }
 
-/* Animations */
 @keyframes slideUp {
-  from {
-      opacity: 0;
-      transform: translateY(20px);
-  }
-  to {
-      opacity: 1;
-      transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
