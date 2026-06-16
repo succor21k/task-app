@@ -204,6 +204,8 @@ export default function AdminPage() {
       rows.push(["작업지시서"]);
       rows.push([]);
 
+      let monthlyTotalQty = 0;
+
       monthOrders.forEach(o => {
         const createDateStr = new Date(o.createdAt).toLocaleDateString("ko-KR");
         
@@ -214,7 +216,6 @@ export default function AdminPage() {
         rows.push(["제품명", o.productName, "", "", o.notice || ""]);
         
         // 예정 납품일 & 실제 납품일자
-        // 현재 화면에서 수정한 값이면 수정된 값(actualDate) 사용
         const isCurrent = o.id === currentOrder?.id;
         const actDate = isCurrent ? (actualDate || o.actualDeliveryDate || "") : (o.actualDeliveryDate || "");
         rows.push(["예정 납품일", o.deliveryDate, "실제 납품일자", actDate]);
@@ -223,8 +224,18 @@ export default function AdminPage() {
         const actQty = isCurrent ? (actualQty || o.actualDeliveryQuantity || "") : (o.actualDeliveryQuantity || "");
         rows.push(["예정 수량", o.quantity, "실제 납품수량", actQty]);
         
+        // 숫자만 추출해서 합계 계산
+        const parsedQty = parseInt(actQty.replace(/[^0-9]/g, ""), 10);
+        if (!isNaN(parsedQty)) {
+          monthlyTotalQty += parsedQty;
+        }
+
         rows.push([]); // 한 줄 띄우기
       });
+
+      // 월 총합계 행 추가
+      rows.push(["", "", "월 총 납품수량", `${monthlyTotalQty.toLocaleString()}개`]);
+      rows.push([]);
 
       const ws = XLSX.utils.aoa_to_sheet(rows);
       // 컬럼 너비 설정
