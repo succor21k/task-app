@@ -176,3 +176,50 @@
 }
 .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
 .submit-btn:disabled { background: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* ── 실제 납품 정보 섹션 ── */
+.actual-section {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-md);
+  border: 2px solid #22c55e;
+  margin-bottom: 20px;
+}
+.actual-section h2 {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1.125rem; font-weight: 700;
+  color: #15803d; margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #dcfce7;
+}
+.current-order-name {
+  margin-left: auto;
+  font-size: 0.875rem; font-weight: 600;
+  background: #dcfce7; color: #15803d;
+  padding: 3px 10px; border-radius: 20px;
+}
+.actual-fields {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 16px;
+}
+.actual-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.btn-save-actual {
+  padding: 13px; background: #22c55e; color: white;
+  border: none; border-radius: var(--radius-md);
+  font-size: 0.9375rem; font-weight: 700; cursor: pointer;
+}
+.btn-save-actual:hover:not(:disabled) { background: #16a34a; }
+.btn-save-actual:disabled { background: var(--text-muted); cursor: not-allowed; }
+.btn-excel {
+  padding: 13px; background: #1d6f42; color: white;
+  border: none; border-radius: var(--radius-md);
+  font-size: 0.9375rem; font-weight: 700; cursor: pointer;
+}
+.btn-excel:hover { background: #145232; }
+.actual-msg {
+  margin-top: 12px; text-align: center;
+  font-size: 0.875rem; font-weight: 600; color: #15803d;
+}
