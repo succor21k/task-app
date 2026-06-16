@@ -218,36 +218,40 @@ export default function AdminPage() {
         </header>
 
         {/* ── 실제 납품 정보 섹션 ── */}
-        {currentOrder && (
-          <section className="actual-section">
-            <h2>
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              실제 납품 정보
-              <span className="current-order-name">{currentOrder.productName}</span>
-            </h2>
-            <div className="actual-fields">
-              <div className="input-group">
-                <label>실제 납품일자</label>
-                <input type="date" value={actualDate} onChange={e => setActualDate(e.target.value)} />
+        <section className="actual-section">
+          <h2>
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            실제 납품 정보
+            {currentOrder && <span className="current-order-name">{currentOrder.productName}</span>}
+          </h2>
+          {!currentOrder ? (
+            <p className="no-order-msg">📋 먼저 아래에서 작업지시서를 등록해 주세요.</p>
+          ) : (
+            <>
+              <div className="actual-fields">
+                <div className="input-group">
+                  <label>실제 납품일자</label>
+                  <input type="date" value={actualDate} onChange={e => setActualDate(e.target.value)} />
+                </div>
+                <div className="input-group">
+                  <label>실제 납품수량</label>
+                  <input type="text" value={actualQty} onChange={e => setActualQty(e.target.value)} placeholder="예: 1,500개" />
+                </div>
               </div>
-              <div className="input-group">
-                <label>실제 납품수량</label>
-                <input type="text" value={actualQty} onChange={e => setActualQty(e.target.value)} placeholder="예: 1,500개" />
+              <div className="actual-actions">
+                <button className="btn-save-actual" onClick={saveActual} disabled={actualSaving}>
+                  {actualSaving ? "저장 중..." : "💾 납품 정보 저장"}
+                </button>
+                <button className="btn-excel" onClick={downloadExcel}>
+                  📊 엑셀로 저장
+                </button>
               </div>
-            </div>
-            <div className="actual-actions">
-              <button className="btn-save-actual" onClick={saveActual} disabled={actualSaving}>
-                {actualSaving ? "저장 중..." : "💾 납품 정보 저장"}
-              </button>
-              <button className="btn-excel" onClick={downloadExcel}>
-                📊 엑셀로 저장
-              </button>
-            </div>
-            {actualMsg && <div className="actual-msg">{actualMsg}</div>}
-          </section>
-        )}
+              {actualMsg && <div className="actual-msg">{actualMsg}</div>}
+            </>
+          )}
+        </section>
 
         {status === "done" && (
           <div className="success-banner">

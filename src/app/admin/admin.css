@@ -223,3 +223,8 @@
   margin-top: 12px; text-align: center;
   font-size: 0.875rem; font-weight: 600; color: #15803d;
 }
+
+.no-order-msg {
+  color: var(--text-muted); font-size: 0.9375rem;
+  text-align: center; padding: 12px 0;
+}
