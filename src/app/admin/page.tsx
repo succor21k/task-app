@@ -47,6 +47,7 @@ export default function AdminPage() {
 
   // ── 실제 납품 정보 상태 ──
   const [currentOrder, setCurrentOrder] = useState<WorkOrder | null>(null);
+  const [allOrders, setAllOrders] = useState<WorkOrder[]>([]);
   const [actualDate, setActualDate] = useState("");
   const [actualQty, setActualQty] = useState("");
   const [actualSaving, setActualSaving] = useState(false);
@@ -57,11 +58,14 @@ export default function AdminPage() {
     fetch("/api/orders")
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const o = data[0];
-          setCurrentOrder(o);
-          setActualDate(o.actualDeliveryDate || "");
-          setActualQty(o.actualDeliveryQuantity || "");
+        if (Array.isArray(data)) {
+          setAllOrders(data);
+          if (data.length > 0) {
+            const o = data[0];
+            setCurrentOrder(o);
+            setActualDate(o.actualDeliveryDate || "");
+            setActualQty(o.actualDeliveryQuantity || "");
+          }
         }
       })
       .catch(() => {});
@@ -171,35 +175,65 @@ export default function AdminPage() {
     }
   };
 
-  // 엑셀 저장
+  // 엑셀 저장 (월별 시트 분리)
   const downloadExcel = () => {
-    const o = currentOrder;
-    if (!o) { alert("등록된 작업지시서가 없습니다."); return; }
-
-    const rows = [
-      ["작업지시서"],
-      [],
-      ["작성일", new Date(o.createdAt).toLocaleDateString("ko-KR")],
-      ["제품명", o.productName],
-      ["예정 수량", o.quantity],
-      ["예정 납품일", o.deliveryDate],
-      ["중요 안내사항", o.notice],
-      [],
-      ["실제 납품일자", o.actualDeliveryDate || actualDate || "-"],
-      ["실제 납품수량", o.actualDeliveryQuantity || actualQty || "-"],
-      [],
-      ["No.", "작업 항목", "작업 설명", "주의사항"],
-      ...o.tasks.map(t => [t.id, t.title, t.desc || "", t.warning || ""]),
-    ];
-
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{ wch: 6 }, { wch: 22 }, { wch: 32 }, { wch: 28 }];
+    if (allOrders.length === 0) {
+      alert("등록된 작업지시서가 없습니다.");
+      return;
+    }
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "작업지시서");
+
+    // 월별 분리: "2026-06"
+    const grouped: Record<string, WorkOrder[]> = {};
+    allOrders.forEach(o => {
+      const date = new Date(o.createdAt);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const key = `${year}-${month}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(o);
+    });
+
+    for (const monthKey of Object.keys(grouped).sort()) {
+      const monthOrders = grouped[monthKey];
+      // 오래된 순으로 정렬 (위에서부터 차례대로 쌓이도록)
+      monthOrders.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+      const rows: any[][] = [];
+      rows.push(["작업지시서"]);
+      rows.push([]);
+
+      monthOrders.forEach(o => {
+        const createDateStr = new Date(o.createdAt).toLocaleDateString("ko-KR");
+        
+        // 작성일
+        rows.push(["작성일", createDateStr, "", "", "중요 안내사항"]);
+        
+        // 제품명 & 중요안내사항
+        rows.push(["제품명", o.productName, "", "", o.notice || ""]);
+        
+        // 예정 납품일 & 실제 납품일자
+        // 현재 화면에서 수정한 값이면 수정된 값(actualDate) 사용
+        const isCurrent = o.id === currentOrder?.id;
+        const actDate = isCurrent ? (actualDate || o.actualDeliveryDate || "") : (o.actualDeliveryDate || "");
+        rows.push(["예정 납품일", o.deliveryDate, "실제 납품일자", actDate]);
+        
+        // 예정 수량 & 실제 납품수량
+        const actQty = isCurrent ? (actualQty || o.actualDeliveryQuantity || "") : (o.actualDeliveryQuantity || "");
+        rows.push(["예정 수량", o.quantity, "실제 납품수량", actQty]);
+        
+        rows.push([]); // 한 줄 띄우기
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      // 컬럼 너비 설정
+      ws["!cols"] = [{ wch: 12 }, { wch: 22 }, { wch: 15 }, { wch: 18 }, { wch: 45 }];
+      XLSX.utils.book_append_sheet(wb, ws, monthKey);
+    }
 
     const today = new Date().toLocaleDateString("ko-KR").replace(/\. /g, "-").replace(".", "");
-    XLSX.writeFile(wb, `작업지시서_${o.productName}_${today}.xlsx`);
+    XLSX.writeFile(wb, `발주_및_납품현황_${today}.xlsx`);
   };
 
   return (
