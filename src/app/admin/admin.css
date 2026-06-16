@@ -56,7 +56,8 @@
 .input-group:last-child { margin-bottom: 0; }
 .input-group label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
 .input-group input[type="text"],
-.input-group textarea {
+.input-group textarea,
+.input-group input[type="date"] {
   width: 100%; padding: 11px 14px;
   border: 1.5px solid var(--border); border-radius: var(--radius-md);
   font-size: 0.9375rem; background: #f8fafc;
@@ -177,7 +178,7 @@
 .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
 .submit-btn:disabled { background: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none; }
 
-/* ¦¡¦¡ ½ÇÁ¦ ³³Ç° Á¤º¸ ¼½¼Ç ¦¡¦¡ */
+/* â”€â”€ ì‹¤ì œ ë‚©í’ˆ ì •ë³´ ì„¹ì…˜ â”€â”€ */
 .actual-section {
   background: white;
   border-radius: var(--radius-xl);
@@ -210,15 +211,19 @@
   padding: 13px; background: #22c55e; color: white;
   border: none; border-radius: var(--radius-md);
   font-size: 0.9375rem; font-weight: 700; cursor: pointer;
+  transition: background 0.2s;
 }
 .btn-save-actual:hover:not(:disabled) { background: #16a34a; }
 .btn-save-actual:disabled { background: var(--text-muted); cursor: not-allowed; }
+
 .btn-excel {
   padding: 13px; background: #1d6f42; color: white;
   border: none; border-radius: var(--radius-md);
   font-size: 0.9375rem; font-weight: 700; cursor: pointer;
+  transition: background 0.2s;
 }
 .btn-excel:hover { background: #145232; }
+
 .actual-msg {
   margin-top: 12px; text-align: center;
   font-size: 0.875rem; font-weight: 600; color: #15803d;
