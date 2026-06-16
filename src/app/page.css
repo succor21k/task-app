@@ -197,3 +197,76 @@
   font-weight: 700; font-size: 1.0625rem;
   animation: slideUp 0.4s ease;
 }
+
+/* ===== 실제 납품 정보 섹션 ===== */
+.actual-section {
+  margin: 20px;
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  border: 2px solid #22c55e;
+}
+
+.actual-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1rem; font-weight: 700;
+  color: #15803d; margin-bottom: 16px;
+}
+
+.actual-fields {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-bottom: 16px;
+}
+
+.actual-field label {
+  display: block; font-size: 0.75rem;
+  font-weight: 600; color: var(--text-muted); margin-bottom: 6px;
+}
+
+.actual-field input {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem; background: #f8fafc;
+  transition: border-color 0.2s;
+}
+
+.actual-field input:focus {
+  outline: none; border-color: #22c55e; background: white;
+}
+
+.actual-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+
+.btn-save-actual {
+  padding: 12px;
+  background: #22c55e; color: white; border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-save-actual:hover:not(:disabled) { background: #16a34a; }
+.btn-save-actual:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+.btn-excel {
+  padding: 12px;
+  background: #1d6f42; color: white; border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-excel:hover { background: #145232; }
+
+.save-msg {
+  margin-top: 10px; text-align: center;
+  font-size: 0.875rem; font-weight: 600; color: #15803d;
+}
+
+/* info-card label */
+.info-card-label {
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--text-muted); margin-bottom: 10px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}

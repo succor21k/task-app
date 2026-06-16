@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as XLSX from "xlsx";
 import "./page.css";
 
 interface TaskItem {
@@ -19,6 +20,9 @@ interface WorkOrder {
   notice: string;
   createdAt: string;
   tasks: TaskItem[];
+  actualDeliveryDate?: string;
+  actualDeliveryQuantity?: string;
+  actualUpdatedAt?: string;
 }
 
 export default function Home() {
@@ -27,11 +31,22 @@ export default function Home() {
   const [completed, setCompleted] = useState<number[]>([]);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
+  // 실제 납품 정보
+  const [actualDate, setActualDate] = useState("");
+  const [actualQty, setActualQty] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+
   useEffect(() => {
     fetch("/api/orders")
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) setOrder(data[0]);
+        if (Array.isArray(data) && data.length > 0) {
+          const o = data[0];
+          setOrder(o);
+          setActualDate(o.actualDeliveryDate || "");
+          setActualQty(o.actualDeliveryQuantity || "");
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -51,6 +66,76 @@ export default function Home() {
       navigator.clipboard.writeText(window.location.href);
       alert("링크가 복사되었습니다!");
     }
+  };
+
+  // 실제 납품 정보 저장
+  const saveActual = async () => {
+    if (!order) return;
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      const res = await fetch("/api/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: order.id,
+          actualDeliveryDate: actualDate,
+          actualDeliveryQuantity: actualQty,
+        }),
+      });
+      if (res.ok) {
+        setSaveMsg("✅ 저장되었습니다!");
+        setOrder(prev => prev ? { ...prev, actualDeliveryDate: actualDate, actualDeliveryQuantity: actualQty } : prev);
+      } else {
+        setSaveMsg("❌ 저장 실패");
+      }
+    } catch {
+      setSaveMsg("❌ 저장 실패");
+    } finally {
+      setSaving(false);
+      setTimeout(() => setSaveMsg(""), 3000);
+    }
+  };
+
+  // 엑셀 다운로드
+  const downloadExcel = () => {
+    if (!order) return;
+
+    // 기본 정보 시트
+    const infoRows = [
+      ["작업지시서"],
+      [],
+      ["작성일", new Date(order.createdAt).toLocaleDateString("ko-KR")],
+      ["제품명", order.productName],
+      ["예정 수량", order.quantity],
+      ["예정 납품일", order.deliveryDate],
+      ["중요 안내사항", order.notice],
+      [],
+      ["실제 납품일자", order.actualDeliveryDate || "-"],
+      ["실제 납품수량", order.actualDeliveryQuantity || "-"],
+      [],
+      ["No.", "작업 항목", "작업 설명", "주의사항", "완료 여부"],
+      ...order.tasks.map(t => [
+        t.id,
+        t.title,
+        t.desc || "",
+        t.warning || "",
+        completed.includes(t.id) ? "✅ 완료" : "미완료"
+      ]),
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(infoRows);
+
+    // 열 너비 설정
+    ws["!cols"] = [
+      { wch: 6 }, { wch: 22 }, { wch: 30 }, { wch: 28 }, { wch: 10 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "작업지시서");
+
+    const fileName = `작업지시서_${order.productName}_${new Date().toLocaleDateString("ko-KR").replace(/\. /g, "-").replace(".", "")}.xlsx`;
+    XLSX.writeFile(wb, fileName);
   };
 
   if (loading) return (
@@ -99,7 +184,7 @@ export default function Home() {
           </button>
         </header>
 
-        {/* Progress Bar */}
+        {/* Progress */}
         <div className="progress-section">
           <div className="progress-info">
             <span>진행률</span>
@@ -110,15 +195,16 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Info Card */}
+        {/* 예정 정보 */}
         <div className="info-card">
+          <div className="info-card-label">📋 예정 정보</div>
           <div className="info-row">
             <div className="info-cell">
-              <span className="info-label">수량</span>
+              <span className="info-label">예정 수량</span>
               <span className="info-value">{order.quantity}</span>
             </div>
             <div className="info-cell">
-              <span className="info-label">납품일</span>
+              <span className="info-label">예정 납품일</span>
               <span className="info-value">{order.deliveryDate}</span>
             </div>
           </div>
@@ -175,6 +261,45 @@ export default function Home() {
         {done === total && total > 0 && (
           <div className="complete-banner">🎉 모든 작업이 완료되었습니다!</div>
         )}
+
+        {/* ===== 실제 납품 정보 섹션 ===== */}
+        <div className="actual-section">
+          <div className="actual-section-title">
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            실제 납품 정보
+          </div>
+          <div className="actual-fields">
+            <div className="actual-field">
+              <label>실제 납품일자</label>
+              <input
+                type="date"
+                value={actualDate}
+                onChange={e => setActualDate(e.target.value)}
+                placeholder="날짜 선택"
+              />
+            </div>
+            <div className="actual-field">
+              <label>실제 납품수량</label>
+              <input
+                type="text"
+                value={actualQty}
+                onChange={e => setActualQty(e.target.value)}
+                placeholder="예: 1,500개"
+              />
+            </div>
+          </div>
+          <div className="actual-actions">
+            <button className="btn-save-actual" onClick={saveActual} disabled={saving}>
+              {saving ? "저장 중..." : "💾 납품 정보 저장"}
+            </button>
+            <button className="btn-excel" onClick={downloadExcel}>
+              📊 엑셀로 저장
+            </button>
+          </div>
+          {saveMsg && <div className="save-msg">{saveMsg}</div>}
+        </div>
       </div>
     </>
   );

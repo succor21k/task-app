@@ -80,3 +80,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
+
+// PATCH: 실제 납품일자/수량 업데이트
+export async function PATCH(request: Request) {
+  try {
+    const { id, actualDeliveryDate, actualDeliveryQuantity } = await request.json();
+
+    const data = await getFileSha();
+    if (!data) return NextResponse.json({ error: '데이터 없음' }, { status: 404 });
+
+    const decoded = Buffer.from(data.content, 'base64').toString('utf-8');
+    const orders: any[] = JSON.parse(decoded);
+
+    const idx = orders.findIndex((o: any) => o.id === id);
+    if (idx === -1) return NextResponse.json({ error: '지시서 없음' }, { status: 404 });
+
+    orders[idx] = {
+      ...orders[idx],
+      actualDeliveryDate,
+      actualDeliveryQuantity,
+      actualUpdatedAt: new Date().toISOString(),
+    };
+
+    const body: any = {
+      message: `실제 납품 정보 업데이트: ${orders[idx].productName}`,
+      content: Buffer.from(JSON.stringify(orders, null, 2)).toString('base64'),
+      sha: data.sha,
+    };
+
+    const res = await fetch(GITHUB_API_URL, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
