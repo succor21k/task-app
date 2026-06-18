@@ -269,7 +269,20 @@ export default function AdminPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             실제 납품 정보
-            {currentOrder && <span className="current-order-name">{currentOrder.productName}</span>}
+            {currentOrder && (
+              <select className="current-order-name" style={{ border: "1px solid #bbf7d0", cursor: "pointer", outline: "none" }} value={currentOrder.id} onChange={e => {
+                const o = allOrders.find(x => x.id === e.target.value);
+                if(o) {
+                  setCurrentOrder(o);
+                  setActualDate(o.actualDeliveryDate || "");
+                  setActualQty(o.actualDeliveryQuantity || "");
+                }
+              }}>
+                {allOrders.map(o => (
+                  <option key={o.id} value={o.id}>{o.productName} ({new Date(o.createdAt).toLocaleDateString()})</option>
+                ))}
+              </select>
+            )}
           </h2>
           {!currentOrder ? (
             <p className="no-order-msg">📋 먼저 아래에서 작업지시서를 등록해 주세요.</p>
@@ -278,7 +291,7 @@ export default function AdminPage() {
               <div className="actual-fields">
                 <div className="input-group">
                   <label>실제 납품일자</label>
-                  <input type="date" value={actualDate} onChange={e => setActualDate(e.target.value)} />
+                  <input type="date" value={actualDate} onChange={e => setActualDate(e.target.value)} onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()} />
                 </div>
                 <div className="input-group">
                   <label>실제 납품수량</label>
@@ -314,7 +327,20 @@ export default function AdminPage() {
             <h2>기본 정보</h2>
             <div className="input-group">
               <label>제품명</label>
-              <input type="text" required value={productName} onChange={e => setProductName(e.target.value)} />
+              <input type="text" list="product-list" required value={productName} onChange={e => {
+                setProductName(e.target.value);
+                const matched = allOrders.find(o => o.productName === e.target.value);
+                if (matched) {
+                  setCurrentOrder(matched);
+                  setActualDate(matched.actualDeliveryDate || "");
+                  setActualQty(matched.actualDeliveryQuantity || "");
+                }
+              }} />
+              <datalist id="product-list">
+                {Array.from(new Set(allOrders.map(o => o.productName))).map(p => (
+                  <option key={p} value={p} />
+                ))}
+              </datalist>
             </div>
             <div className="form-row">
               <div className="input-group">
