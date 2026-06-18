@@ -328,30 +328,21 @@ export default function AdminPage() {
         <form onSubmit={handleSubmit} className="admin-form">
           <section className="form-section">
             <h2>기본 정보</h2>
-            <div className="input-group">
+            <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>제품명</label>
-              <input type="text" list="product-list" required value={productName} onChange={e => {
-                setProductName(e.target.value);
-                const matched = allOrders.find(o => o.productName === e.target.value);
-                if (matched) {
-                  setCurrentOrder(matched);
-                  setActualDate(matched.actualDeliveryDate || "");
-                  setActualQty(matched.actualDeliveryQuantity || "");
-                }
-              }} />
+              <input type="text" list="product-list" required value={productName} onChange={e => setProductName(e.target.value)} />
               <datalist id="product-list">
                 {Array.from(new Set(allOrders.map(o => o.productName))).map(p => (
                   <option key={p} value={p} />
                 ))}
               </datalist>
             </div>
-            <div className="form-row">
-              <div className="input-group">
-                <label>수량</label>
-                <input type="text" required value={quantity} onChange={e => setQuantity(e.target.value)} />
-              </div>
-              <div className="input-group">
-                <label>납품일</label>
+            <div className="input-group" style={{ marginBottom: "12px" }}>
+              <label>수량</label>
+              <input type="text" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+            </div>
+            <div className="input-group" style={{ marginBottom: "12px" }}>
+              <label>납품일</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input 
                     type={deliveryDate === "완료되는 대로" ? "text" : "date"} 
@@ -389,7 +380,7 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
-            <div className="input-group">
+            <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>중요 안내사항 / 비고</label>
               <textarea value={notice} onChange={e => setNotice(e.target.value)} rows={3} />
             </div>
