@@ -413,31 +413,73 @@ export default function AdminPage() {
                   </div>
                   <div className="input-group">
                     <label>작업 설명</label>
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                      <select 
-                        value="" 
-                        onChange={e => {
-                          if (e.target.value) updateTask(i, "desc", e.target.value);
-                        }}
-                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}
-                      >
-                        <option value="">-- 자주 쓰는 설명 선택 (선택 시 자동 입력) --</option>
-                        <optgroup label="상깍지 테이프 작업">
-                          <option value="흰테이프를 사용해서 한 줄로 앞뒤로 돌리기">흰테이프 한 줄 앞뒤 돌리기</option>
-                          <option value="흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)">흰테이프 세로 가운데 한줄(돌돌이)</option>
-                          <option value="흰테이프를 사용해서 두 줄 앞뒤로 돌리기">흰테이프 두 줄 앞뒤 돌리기</option>
-                        </optgroup>
-                        <optgroup label="상깍지 사용">
-                          <option value="상깍지 2개 사용(1개는 테이프 작업, 1개는 그냥 사용)">상깍지 2개 사용 (1개 테이프, 1개 그냥)</option>
-                          <option value="1개 사용">상깍지 1개 사용</option>
-                        </optgroup>
-                        <optgroup label="바닥 테이프 작업(위쪽)">
-                          <option value="흰테이프 사용 / 일자(ㅡ)모양">흰테이프 사용 / 일자(ㅡ)모양</option>
-                          <option value="흰테이프 사용 / 팔자(八)모양">흰테이프 사용 / 팔자(八)모양</option>
-                        </optgroup>
-                      </select>
-                    </div>
-                    <input type="text" value={task.desc} placeholder="작업 설명 직접 입력 (또는 위에서 선택)" onChange={e => updateTask(i, "desc", e.target.value)} />
+                    <select 
+                      value={
+                        [
+                          "흰테이프를 사용해서 한 줄로 앞뒤로 돌리기",
+                          "흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)",
+                          "흰테이프를 사용해서 두 줄 앞뒤로 돌리기",
+                          "상깍지 2개 사용(1개는 테이프 작업, 1개는 그냥 사용)",
+                          "1개 사용",
+                          "손잡이 글루건 작업 진행",
+                          "흰테이프 사용 / 선에서 2미리",
+                          "선에서 2미리",
+                          "흰테이프 사용 / 일자(ㅡ)모양",
+                          "흰테이프 사용 / 팔자(八)모양"
+                        ].includes(task.desc) ? task.desc : (task.desc === "" ? "" : "custom")
+                      }
+                      onChange={e => {
+                        if (e.target.value === "custom") {
+                          updateTask(i, "desc", " "); // 스페이스바 하나로 커스텀 모드 진입
+                        } else {
+                          updateTask(i, "desc", e.target.value);
+                        }
+                      }}
+                      style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', width: '100%', marginBottom: '8px' }}
+                    >
+                      <option value="">-- 설명 선택 --</option>
+                      <optgroup label="상깍지 테이프 작업">
+                        <option value="흰테이프를 사용해서 한 줄로 앞뒤로 돌리기">흰테이프를 사용해서 한 줄로 앞뒤로 돌리기</option>
+                        <option value="흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)">흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)</option>
+                        <option value="흰테이프를 사용해서 두 줄 앞뒤로 돌리기">흰테이프를 사용해서 두 줄 앞뒤로 돌리기</option>
+                      </optgroup>
+                      <optgroup label="상깍지 사용">
+                        <option value="상깍지 2개 사용(1개는 테이프 작업, 1개는 그냥 사용)">상깍지 2개 사용(1개는 테이프 작업, 1개는 그냥 사용)</option>
+                        <option value="1개 사용">1개 사용</option>
+                      </optgroup>
+                      <optgroup label="바닥 테이프 작업(위쪽)">
+                        <option value="흰테이프 사용 / 일자(ㅡ)모양">흰테이프 사용 / 일자(ㅡ)모양</option>
+                        <option value="흰테이프 사용 / 팔자(八)모양">흰테이프 사용 / 팔자(八)모양</option>
+                      </optgroup>
+                      <optgroup label="기타 작업들">
+                        <option value="손잡이 글루건 작업 진행">손잡이 글루건 작업 진행</option>
+                        <option value="흰테이프 사용 / 선에서 2미리">흰테이프 사용 / 선에서 2미리</option>
+                        <option value="선에서 2미리">선에서 2미리</option>
+                      </optgroup>
+                      <option value="custom">직접 입력...</option>
+                    </select>
+
+                    {(![
+                      "",
+                      "흰테이프를 사용해서 한 줄로 앞뒤로 돌리기",
+                      "흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)",
+                      "흰테이프를 사용해서 두 줄 앞뒤로 돌리기",
+                      "상깍지 2개 사용(1개는 테이프 작업, 1개는 그냥 사용)",
+                      "1개 사용",
+                      "손잡이 글루건 작업 진행",
+                      "흰테이프 사용 / 선에서 2미리",
+                      "선에서 2미리",
+                      "흰테이프 사용 / 일자(ㅡ)모양",
+                      "흰테이프 사용 / 팔자(八)모양"
+                    ].includes(task.desc) || task.desc === " ") && (
+                      <input 
+                        type="text" 
+                        value={task.desc.trim()} 
+                        placeholder="직접 입력" 
+                        onChange={e => updateTask(i, "desc", e.target.value)} 
+                        style={{ marginTop: '4px' }}
+                      />
+                    )}
                   </div>
                   <div className="input-group">
                     <label>주의사항 (선택)</label>
