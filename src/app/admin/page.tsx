@@ -330,7 +330,15 @@ export default function AdminPage() {
             <h2>기본 정보</h2>
             <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>제품명</label>
-              <input type="text" list="product-list" required value={productName} onChange={e => setProductName(e.target.value)} />
+              <input type="text" list="product-list" required value={productName} onChange={e => {
+                setProductName(e.target.value);
+                const matched = allOrders.find(o => o.productName === e.target.value);
+                if (matched) {
+                  setCurrentOrder(matched);
+                  setActualDate(matched.actualDeliveryDate || "");
+                  setActualQty(matched.actualDeliveryQuantity || "");
+                }
+              }} />
               <datalist id="product-list">
                 {Array.from(new Set(allOrders.map(o => o.productName))).map(p => (
                   <option key={p} value={p} />
@@ -339,7 +347,7 @@ export default function AdminPage() {
             </div>
             <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>수량</label>
-              <input type="text" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+              <input type="text" inputMode="numeric" pattern="[0-9]*" required value={quantity} onChange={e => setQuantity(e.target.value)} />
             </div>
             <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>납품일</label>
@@ -401,11 +409,30 @@ export default function AdminPage() {
                 <div className="task-fields">
                   <div className="input-group">
                     <label>작업 제목 *</label>
-                    <input type="text" required value={task.title} placeholder="예: 상깍지 테이프 작업" onChange={e => updateTask(i, "title", e.target.value)} />
+                    <input type="text" list={`title-list-${i}`} required value={task.title} placeholder="예: 상깍지 테이프 작업" onChange={e => updateTask(i, "title", e.target.value)} />
+                    <datalist id={`title-list-${i}`}>
+                      <option value="상깍지 테이프 작업" />
+                      <option value="바닥 테이프 작업(위쪽)" />
+                    </datalist>
                   </div>
                   <div className="input-group">
                     <label>작업 설명</label>
-                    <input type="text" value={task.desc} placeholder="예: 흰테이프 사용해서 한줄로 앞뒤 돌리기" onChange={e => updateTask(i, "desc", e.target.value)} />
+                    <input type="text" list={`desc-list-${i}`} value={task.desc} placeholder="예: 흰테이프 사용해서 한줄로 앞뒤 돌리기" onChange={e => updateTask(i, "desc", e.target.value)} />
+                    <datalist id={`desc-list-${i}`}>
+                      {task.title === "상깍지 테이프 작업" && (
+                        <>
+                          <option value="흰테이프를 사용해서 한 줄로 앞뒤로 돌리기" />
+                          <option value="흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)" />
+                          <option value="흰테이프를 사용해서 두 줄 앞뒤로 돌리기" />
+                        </>
+                      )}
+                      {task.title === "바닥 테이프 작업(위쪽)" && (
+                        <>
+                          <option value="흰테이프 사용 / 일자(ㅡ)모양" />
+                          <option value="흰테이프 사용 / 팔자(八)모양" />
+                        </>
+                      )}
+                    </datalist>
                   </div>
                   <div className="input-group">
                     <label>주의사항 (선택)</label>

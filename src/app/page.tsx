@@ -131,12 +131,15 @@ export default function Home() {
                 {task.desc && <div className="task-desc">{task.desc}</div>}
                 {task.warning && <div className="task-warning">{task.warning}</div>}
                 {task.imageUrl && (
-                  <button
-                    className="img-btn"
-                    onClick={() => setLightbox(task.imageUrl!)}
-                  >
-                    📷 샘플 사진 확대 보기
-                  </button>
+                  <div className="task-image-wrap" style={{ marginTop: '12px' }}>
+                    <img 
+                      src={task.imageUrl} 
+                      alt="샘플 사진" 
+                      onClick={() => setLightbox(task.imageUrl!)}
+                      style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0', cursor: 'zoom-in' }}
+                    />
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px', textAlign: 'center' }}>👆 사진을 터치하면 크게 보입니다</div>
+                  </div>
                 )}
               </div>
             </div>
