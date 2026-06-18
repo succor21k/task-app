@@ -379,7 +379,6 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
-            </div>
             <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>중요 안내사항 / 비고</label>
               <textarea value={notice} onChange={e => setNotice(e.target.value)} rows={3} />
