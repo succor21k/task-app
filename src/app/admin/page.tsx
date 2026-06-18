@@ -350,7 +350,7 @@ export default function AdminPage() {
               <input type="text" inputMode="numeric" pattern="[0-9]*" required value={quantity} onChange={e => setQuantity(e.target.value)} />
             </div>
             <div className="input-group" style={{ marginBottom: "12px" }}>
-              <label>납품일</label>
+              <label>납품 요구일</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input 
                     type={deliveryDate === "완료되는 대로" ? "text" : "date"} 
@@ -409,30 +409,53 @@ export default function AdminPage() {
                 <div className="task-fields">
                   <div className="input-group">
                     <label>작업 제목 *</label>
-                    <input type="text" list={`title-list-${i}`} required value={task.title} placeholder="예: 상깍지 테이프 작업" onChange={e => updateTask(i, "title", e.target.value)} />
-                    <datalist id={`title-list-${i}`}>
-                      <option value="상깍지 테이프 작업" />
-                      <option value="바닥 테이프 작업(위쪽)" />
-                    </datalist>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                      <select 
+                        value="" 
+                        onChange={e => {
+                          if (e.target.value) {
+                            updateTask(i, "title", e.target.value);
+                            updateTask(i, "desc", "");
+                          }
+                        }}
+                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}
+                      >
+                        <option value="">-- 자주 쓰는 제목 선택 --</option>
+                        <option value="상깍지 테이프 작업">상깍지 테이프 작업</option>
+                        <option value="바닥 테이프 작업(위쪽)">바닥 테이프 작업(위쪽)</option>
+                      </select>
+                    </div>
+                    <input type="text" required value={task.title} placeholder="직접 입력 (또는 위에서 선택)" onChange={e => updateTask(i, "title", e.target.value)} />
                   </div>
                   <div className="input-group">
                     <label>작업 설명</label>
-                    <input type="text" list={`desc-list-${i}`} value={task.desc} placeholder="예: 흰테이프 사용해서 한줄로 앞뒤 돌리기" onChange={e => updateTask(i, "desc", e.target.value)} />
-                    <datalist id={`desc-list-${i}`}>
-                      {task.title === "상깍지 테이프 작업" && (
-                        <>
-                          <option value="흰테이프를 사용해서 한 줄로 앞뒤로 돌리기" />
-                          <option value="흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)" />
-                          <option value="흰테이프를 사용해서 두 줄 앞뒤로 돌리기" />
-                        </>
-                      )}
-                      {task.title === "바닥 테이프 작업(위쪽)" && (
-                        <>
-                          <option value="흰테이프 사용 / 일자(ㅡ)모양" />
-                          <option value="흰테이프 사용 / 팔자(八)모양" />
-                        </>
-                      )}
-                    </datalist>
+                    {(task.title === "상깍지 테이프 작업" || task.title === "바닥 테이프 작업(위쪽)") && (
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                        <select 
+                          value="" 
+                          onChange={e => {
+                            if (e.target.value) updateTask(i, "desc", e.target.value);
+                          }}
+                          style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}
+                        >
+                          <option value="">-- 자주 쓰는 설명 선택 --</option>
+                          {task.title === "상깍지 테이프 작업" && (
+                            <>
+                              <option value="흰테이프를 사용해서 한 줄로 앞뒤로 돌리기">한 줄로 앞뒤로 돌리기</option>
+                              <option value="흰테이프를 사용해서 세로로 가운데 한줄(돌돌이)">세로로 가운데 한줄(돌돌이)</option>
+                              <option value="흰테이프를 사용해서 두 줄 앞뒤로 돌리기">두 줄 앞뒤로 돌리기</option>
+                            </>
+                          )}
+                          {task.title === "바닥 테이프 작업(위쪽)" && (
+                            <>
+                              <option value="흰테이프 사용 / 일자(ㅡ)모양">일자(ㅡ)모양</option>
+                              <option value="흰테이프 사용 / 팔자(八)모양">팔자(八)모양</option>
+                            </>
+                          )}
+                        </select>
+                      </div>
+                    )}
+                    <input type="text" value={task.desc} placeholder="작업 설명 직접 입력 (또는 위에서 선택)" onChange={e => updateTask(i, "desc", e.target.value)} />
                   </div>
                   <div className="input-group">
                     <label>주의사항 (선택)</label>
