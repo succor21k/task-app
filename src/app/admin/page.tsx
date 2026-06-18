@@ -37,7 +37,7 @@ const DEFAULT_TASKS: TaskItem[] = [
 export default function AdminPage() {
   // ── 등록 폼 상태 ──
   const [productName, setProductName] = useState("LEBEIGE");
-  const [quantity, setQuantity] = useState("2,000개 (4,000매)");
+  const [quantity, setQuantity] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("완료되는 대로 납품");
   const [notice, setNotice] = useState("500개 먼저 작업 요망\n한 줄, 두 줄 섞이지 않게 주의");
   const [tasks, setTasks] = useState<TaskItem[]>(DEFAULT_TASKS.map(t => ({ ...t })));
@@ -64,7 +64,7 @@ export default function AdminPage() {
             const o = data[0];
             setCurrentOrder(o);
             setActualDate(o.actualDeliveryDate || "");
-            setActualQty(o.actualDeliveryQuantity || "");
+            setActualQty(o.actualDeliveryQuantity || o.quantity);
           }
         }
       })
@@ -278,7 +278,7 @@ export default function AdminPage() {
                 if(o) {
                   setCurrentOrder(o);
                   setActualDate(o.actualDeliveryDate || "");
-                  setActualQty(o.actualDeliveryQuantity || "");
+                  setActualQty(o.actualDeliveryQuantity || o.quantity);
                 }
               }}>
                 {allOrders.map(o => (
@@ -347,7 +347,7 @@ export default function AdminPage() {
             </div>
             <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>수량</label>
-              <input type="text" inputMode="numeric" pattern="[0-9]*" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+              <input type="text" inputMode="numeric" pattern="[0-9]*" required value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="예: 2000" />
             </div>
             <div className="input-group" style={{ marginBottom: "12px" }}>
               <label>납품 요구일</label>
