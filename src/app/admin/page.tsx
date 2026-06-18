@@ -264,13 +264,16 @@ export default function AdminPage() {
 
         {/* ── 실제 납품 정보 섹션 ── */}
         <section className="actual-section">
-          <h2>
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <h2 style={{ display: "block", marginBottom: "16px" }}>
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px" }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            실제 납품 정보
-            {currentOrder && (
-              <select className="current-order-name" style={{ border: "1px solid #bbf7d0", cursor: "pointer", outline: "none" }} value={currentOrder.id} onChange={e => {
+            <span style={{ verticalAlign: "middle" }}>실제 납품 정보</span>
+          </h2>
+          {currentOrder && (
+            <div className="input-group" style={{ marginBottom: "20px" }}>
+              <label>대상 제품명 (등록된 지시서 선택)</label>
+              <select className="current-order-name" style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1rem", background: "#f8fafc", cursor: "pointer", outline: "none", color: "#333", fontWeight: "bold", textAlign: "left" }} value={currentOrder.id} onChange={e => {
                 const o = allOrders.find(x => x.id === e.target.value);
                 if(o) {
                   setCurrentOrder(o);
@@ -279,11 +282,11 @@ export default function AdminPage() {
                 }
               }}>
                 {allOrders.map(o => (
-                  <option key={o.id} value={o.id}>{o.productName} ({new Date(o.createdAt).toLocaleDateString()})</option>
+                  <option key={o.id} value={o.id}>{o.productName}</option>
                 ))}
               </select>
-            )}
-          </h2>
+            </div>
+          )}
           {!currentOrder ? (
             <p className="no-order-msg">📋 먼저 아래에서 작업지시서를 등록해 주세요.</p>
           ) : (
@@ -295,7 +298,7 @@ export default function AdminPage() {
                 </div>
                 <div className="input-group">
                   <label>실제 납품수량</label>
-                  <input type="text" value={actualQty} onChange={e => setActualQty(e.target.value)} placeholder="예: 1,500개" />
+                  <input type="text" inputMode="numeric" pattern="[0-9]*" value={actualQty} onChange={e => setActualQty(e.target.value)} placeholder="예: 1500" />
                 </div>
               </div>
               <div className="actual-actions">
@@ -349,7 +352,41 @@ export default function AdminPage() {
               </div>
               <div className="input-group">
                 <label>납품일</label>
-                <input type="text" required value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input 
+                    type={deliveryDate === "완료되는 대로" ? "text" : "date"} 
+                    required 
+                    value={deliveryDate === "완료되는 대로" ? "" : deliveryDate} 
+                    onChange={e => setDeliveryDate(e.target.value)} 
+                    onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()}
+                    style={{ flex: 1 }}
+                    placeholder={deliveryDate === "완료되는 대로" ? "완료되는 대로" : ""}
+                    disabled={deliveryDate === "완료되는 대로"}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setDeliveryDate(prev => prev === "완료되는 대로" ? "" : "완료되는 대로")}
+                    style={{
+                      padding: '10px 14px', 
+                      fontSize: '0.9rem', 
+                      background: deliveryDate === "완료되는 대로" ? '#15803d' : '#f1f5f9',
+                      color: deliveryDate === "완료되는 대로" ? '#fff' : '#475569',
+                      border: '1px solid',
+                      borderColor: deliveryDate === "완료되는 대로" ? '#15803d' : '#cbd5e1',
+                      borderRadius: '8px',
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}
+                  >
+                    완료되는 대로
+                  </button>
+                </div>
+                {deliveryDate === "완료되는 대로" && (
+                  <div style={{ fontSize: '0.8rem', color: '#15803d', marginTop: '6px' }}>
+                    ✔ '완료되는 대로'로 지정됨 (버튼을 다시 누르면 취소)
+                  </div>
+                )}
               </div>
             </div>
             <div className="input-group">
