@@ -57,9 +57,9 @@
     ],
     "id": "1781780409022",
     "createdAt": "2026-06-18T11:00:09.022Z",
-    "actualDeliveryDate": "",
-    "actualDeliveryQuantity": "",
-    "actualUpdatedAt": "2026-06-18T11:00:17.527Z"
+    "actualDeliveryDate": "2026-06-18",
+    "actualDeliveryQuantity": "2000",
+    "actualUpdatedAt": "2026-06-18T11:13:24.512Z"
   },
   {
     "productName": "LEBEIGE",
